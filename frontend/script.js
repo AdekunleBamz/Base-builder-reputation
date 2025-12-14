@@ -48,6 +48,10 @@ async function fetchAndCalculate() {
         return;
     }
 
+    const fetchBtn = document.getElementById('fetchData');
+    fetchBtn.disabled = true;
+    fetchBtn.innerText = 'Fetching...';
+
     try {
         // Fetch from Talent Protocol API
         const response = await fetch(`https://api.talentprotocol.com/api/v1/users/${wallet}`, {
@@ -55,21 +59,29 @@ async function fetchAndCalculate() {
                 'Authorization': `Bearer ${TALENT_API_KEY}`
             }
         });
-        if (!response.ok) throw new Error('Failed to fetch data: ' + response.statusText);
+        if (!response.ok) throw new Error('Failed to fetch data: ' + response.status + ' ' + response.statusText);
         const data = await response.json();
 
+        console.log('API Response:', data); // Debug log
+
         // Assume API returns: { github_commits, base_contracts_deployed, mini_apps_created }
-        const github = data.github_commits || 0;
-        const contracts = data.base_contracts_deployed || 0;
-        const miniApps = data.mini_apps_created || 0;
+        const github = data.github_commits || data.github_contributions || 0;
+        const contracts = data.base_contracts_deployed || data.contracts_deployed || 0;
+        const miniApps = data.mini_apps_created || data.mini_apps || 0;
 
         // Calculate score
         const score = Math.floor((github * 0.4) + (contracts * 0.4) + (miniApps * 0.2));
 
         document.getElementById('scoreDisplay').innerText = `Calculated Score: ${score} (GitHub: ${github}, Contracts: ${contracts}, Mini Apps: ${miniApps})`;
         document.getElementById('status').innerText = 'Data fetched and score calculated!';
+        document.getElementById('status').className = 'success';
     } catch (error) {
+        console.error('Fetch error:', error); // Debug log
         document.getElementById('status').innerText = 'Error fetching data: ' + error.message;
+        document.getElementById('status').className = 'error';
+    } finally {
+        fetchBtn.disabled = false;
+        fetchBtn.innerText = 'Fetch Talent Data & Calculate Score';
     }
 }
 
