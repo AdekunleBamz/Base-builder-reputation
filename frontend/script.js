@@ -42,9 +42,18 @@ async function connectWallet() {
 }
 
 async function fetchAndCalculate() {
-    const wallet = document.getElementById('talentWallet').value;
+    let wallet = document.getElementById('talentWallet').value.trim();
     if (!wallet) {
         alert('Enter Talent Wallet Address');
+        return;
+    }
+
+    // Checksum the address
+    try {
+        wallet = ethers.utils.getAddress(wallet);
+        document.getElementById('talentWallet').value = wallet; // Update input with checksummed
+    } catch (e) {
+        alert('Invalid wallet address');
         return;
     }
 
@@ -53,15 +62,42 @@ async function fetchAndCalculate() {
     fetchBtn.innerText = 'Fetching...';
 
     try {
-        // Fetch from Talent Protocol API
-        const response = await fetch(`https://api.talentprotocol.com/api/v1/users/${wallet}`, {
+        // Try different endpoints
+        let response = await fetch(`https://api.talentprotocol.com/api/v1/users/${wallet}`, {
             headers: {
                 'Authorization': `Bearer ${TALENT_API_KEY}`
             }
         });
-        if (!response.ok) throw new Error('Failed to fetch data: ' + response.status + ' ' + response.statusText);
-        const data = await response.json();
 
+        if (!response.ok) {
+            // Try alternative endpoint
+            response = await fetch(`https://api.talentprotocol.com/api/v1/talents/${wallet}`, {
+                headers: {
+                    'Authorization': `Bearer ${TALENT_API_KEY}`
+                }
+            });
+        }
+
+        if (!response.ok) {
+            // Mock data for testing
+            console.warn('API not available, using mock data');
+            const mockData = {
+                github_contributions: Math.floor(Math.random() * 100),
+                contracts_deployed: Math.floor(Math.random() * 20),
+                mini_apps: Math.floor(Math.random() * 5)
+            };
+            const data = mockData;
+            const github = data.github_contributions || 0;
+            const contracts = data.contracts_deployed || 0;
+            const miniApps = data.mini_apps || 0;
+            const score = Math.floor((github * 0.4) + (contracts * 0.4) + (miniApps * 0.2));
+            document.getElementById('scoreDisplay').innerText = `Calculated Score: ${score} (GitHub: ${github}, Contracts: ${contracts}, Mini Apps: ${miniApps}) [MOCK DATA]`;
+            document.getElementById('status').innerText = 'Mock data used - API not accessible';
+            document.getElementById('status').className = 'success';
+            return;
+        }
+
+        const data = await response.json();
         console.log('API Response:', data); // Debug log
 
         // Assume API returns: { github_commits, base_contracts_deployed, mini_apps_created }
