@@ -1,7 +1,7 @@
 let provider;
 let signer;
 let contract;
-const contractAddress = '0xYourDeployedContractAddress'; // Replace with actual address after deployment
+const contractAddress = '0x2c42276d5345CAb9fd3197808b1A2144354ca3D5'; // Deployed on Base mainnet
 const contractABI = [
     "function mintPassport(uint256 _score, string memory _talentProfileId) payable",
     "function updatePassport(uint256 _newScore) payable",
@@ -47,8 +47,12 @@ async function fetchAndCalculate() {
     }
 
     try {
-        // Fetch from Talent Protocol API (placeholder URL - replace with actual)
-        const response = await fetch(`https://api.talentprotocol.com/api/v1/builders/${profileId}`);
+        // Fetch from Talent Protocol API
+        const response = await fetch(`https://api.talentprotocol.com/api/v1/builders/${profileId}`, {
+            headers: {
+                'Authorization': `Bearer 38ba6482e80cdc1b6b37228e02208d132c3f6e799e433d9fc12f70c68f36`
+            }
+        });
         if (!response.ok) throw new Error('Failed to fetch data');
         const data = await response.json();
 
