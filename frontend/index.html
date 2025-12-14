@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Base Builder Reputation Passport</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
+        button { padding: 10px; margin: 10px 0; cursor: pointer; }
+        input { padding: 8px; width: 100%; margin: 5px 0; }
+        #status { margin-top: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Base Builder Reputation Passport</h1>
+    <p>Mint your onchain builder passport using Talent Protocol data.</p>
+    <button id="connectWallet">Connect Wallet</button>
+    <div id="passportSection" style="display: none;">
+        <h2>Your Passport</h2>
+        <input type="text" id="talentProfileId" placeholder="Enter Talent Profile ID (e.g., from Talent Protocol)">
+        <button id="fetchData">Fetch Talent Data & Calculate Score</button>
+        <div id="scoreDisplay"></div>
+        <button id="mintPassport">Mint Passport (0.0001 ETH)</button>
+        <button id="updatePassport">Update Passport (0.0001 ETH)</button>
+    </div>
+    <div id="status"></div>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
