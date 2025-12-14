@@ -29,6 +29,8 @@ async function connectWallet() {
                 params: [{ chainId: '0x2105' }], // Base mainnet chain ID
             });
 
+            document.getElementById('connectWallet').innerText = 'Wallet Connected';
+            document.getElementById('connectWallet').disabled = true;
             document.getElementById('status').innerText = 'Wallet connected to Base!';
             document.getElementById('passportSection').style.display = 'block';
         } catch (error) {
@@ -40,20 +42,20 @@ async function connectWallet() {
 }
 
 async function fetchAndCalculate() {
-    const profileId = document.getElementById('talentProfileId').value;
-    if (!profileId) {
-        alert('Enter Talent Profile ID');
+    const wallet = document.getElementById('talentWallet').value;
+    if (!wallet) {
+        alert('Enter Talent Wallet Address');
         return;
     }
 
     try {
         // Fetch from Talent Protocol API
-        const response = await fetch(`https://api.talentprotocol.com/api/v1/builders/${profileId}`, {
+        const response = await fetch(`https://api.talentprotocol.com/api/v1/users/${wallet}`, {
             headers: {
                 'Authorization': `Bearer ${TALENT_API_KEY}`
             }
         });
-        if (!response.ok) throw new Error('Failed to fetch data');
+        if (!response.ok) throw new Error('Failed to fetch data: ' + response.statusText);
         const data = await response.json();
 
         // Assume API returns: { github_commits, base_contracts_deployed, mini_apps_created }
@@ -72,16 +74,16 @@ async function fetchAndCalculate() {
 }
 
 async function mintPassport() {
-    const profileId = document.getElementById('talentProfileId').value;
+    const wallet = document.getElementById('talentWallet').value;
     const scoreText = document.getElementById('scoreDisplay').innerText;
     const score = parseInt(scoreText.match(/Calculated Score: (\d+)/)?.[1]);
-    if (!score || !profileId) {
+    if (!score || !wallet) {
         alert('Fetch data first');
         return;
     }
 
     try {
-        const tx = await contract.mintPassport(score, profileId, { value: ethers.utils.parseEther('0.0001') });
+        const tx = await contract.mintPassport(score, wallet, { value: ethers.utils.parseEther('0.0001') });
         await tx.wait();
         document.getElementById('status').innerText = 'Passport minted! TX: ' + tx.hash;
     } catch (error) {

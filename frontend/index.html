@@ -5,10 +5,50 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Base Builder Reputation Passport</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
-        button { padding: 10px; margin: 10px 0; cursor: pointer; }
-        input { padding: 8px; width: 100%; margin: 5px 0; }
-        #status { margin-top: 20px; font-weight: bold; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        h1 { text-align: center; color: #ffd700; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+        p { text-align: center; font-size: 18px; }
+        button {
+            padding: 12px;
+            margin: 10px 0;
+            cursor: pointer;
+            background: linear-gradient(45deg, #ff6b6b, #ffa500);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+        button:hover { transform: scale(1.05); }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        input {
+            padding: 10px;
+            width: calc(100% - 22px);
+            margin: 5px 0;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+        }
+        #status {
+            margin-top: 20px;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .success { background: #4CAF50; color: white; }
+        .error { background: #f44336; color: white; }
     </style>
 </head>
 <body>
@@ -17,7 +57,7 @@
     <button id="connectWallet">Connect Wallet</button>
     <div id="passportSection" style="display: none;">
         <h2>Your Passport</h2>
-        <input type="text" id="talentProfileId" placeholder="Enter Talent Profile ID (e.g., from Talent Protocol)">
+        <input type="text" id="talentWallet" placeholder="Enter Talent Wallet Address (e.g., 0x...)">
         <button id="fetchData">Fetch Talent Data & Calculate Score</button>
         <div id="scoreDisplay"></div>
         <button id="mintPassport">Mint Passport (0.0001 ETH)</button>
