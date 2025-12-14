@@ -26,7 +26,7 @@ contract BuilderPassport is ERC721, Ownable {
     event PassportMinted(address indexed builder, uint256 tokenId, uint256 score);
     event PassportUpdated(address indexed builder, uint256 tokenId, uint256 newScore);
 
-    constructor() ERC721("Base Builder Passport", "BBP") {}
+    constructor() ERC721("Base Builder Passport", "BBP") Ownable(msg.sender) {}
 
     // Mint a new passport (SBT - non-transferable)
     function mintPassport(uint256 _score, string memory _talentProfileId) external payable {
@@ -79,13 +79,22 @@ contract BuilderPassport is ERC721, Ownable {
         return passportData[tokenId].score;
     }
 
-    // Override transfer to make it SBT (non-transferable)
-    function _transfer(address from, address to, uint256 tokenId) internal override {
+    // Override transfers to make it SBT (non-transferable)
+    function transferFrom(address from, address to, uint256 tokenId) public override {
+        revert("Passports are soulbound and cannot be transferred");
+    }
+
+    function safeTransferFrom(address from, address to, uint256 tokenId) public override {
+        revert("Passports are soulbound and cannot be transferred");
+    }
+
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data) public override {
         revert("Passports are soulbound and cannot be transferred");
     }
 
     // Withdraw fees to owner
     function withdrawFees() external onlyOwner {
-        payable(owner()).transfer(address(this).balance);
+        (bool success, ) = payable(owner()).call{value: address(this).balance}("");
+        require(success, "Withdrawal failed");
     }
 }
