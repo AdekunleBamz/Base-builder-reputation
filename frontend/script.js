@@ -62,33 +62,62 @@ async function fetchAndCalculate() {
     fetchBtn.innerText = 'Fetching...';
 
     try {
-        // Try different endpoints
-        let response = await fetch(`https://api.talentprotocol.com/api/v1/users/${wallet}`, {
+        // Step 1: Search for profile by wallet address
+        const searchParams = {
+            query: { walletAddresses: [wallet] },
+            sort: { score: { order: "desc" } },
+            page: 1,
+            per_page: 1
+        };
+        const queryString = Object.keys(searchParams)
+            .map(key => `${key}=${encodeURIComponent(JSON.stringify(searchParams[key]))}`)
+            .join('&');
+
+        let response = await fetch(`https://api.talentprotocol.com/search/advanced/profiles?${queryString}`, {
             headers: {
-                'Authorization': `Bearer ${TALENT_API_KEY}`
+                'X-API-KEY': TALENT_API_KEY,
+                'Accept': 'application/json'
             }
         });
 
         if (!response.ok) {
-            // Try alternative endpoint
-            response = await fetch(`https://api.talentprotocol.com/api/v1/talents/${wallet}`, {
-                headers: {
-                    'Authorization': `Bearer ${TALENT_API_KEY}`
-                }
-            });
+            throw new Error('Failed to find profile: ' + response.status + ' ' + response.statusText);
         }
+
+        const searchData = await response.json();
+        console.log('Search Response:', searchData);
+
+        if (!searchData.profiles || searchData.profiles.length === 0) {
+            throw new Error('No profile found for this wallet address.');
+        }
+
+        const profile = searchData.profiles[0];
+        const profileId = profile.uuid;
+
+        // Step 2: Get data points for the profile
+        response = await fetch(`https://api.talentprotocol.com/data_points?talent_id=${profileId}`, {
+            headers: {
+                'X-API-KEY': TALENT_API_KEY,
+                'Accept': 'application/json'
+            }
+        });
 
         if (!response.ok) {
-            throw new Error('Talent API not accessible. Please verify your API key and endpoint.');
+            throw new Error('Failed to get data points: ' + response.status + ' ' + response.statusText);
         }
 
-        const data = await response.json();
-        console.log('API Response:', data); // Debug log
+        const dataPoints = await response.json();
+        console.log('Data Points Response:', dataPoints);
 
-        // Assume API returns: { github_commits, base_contracts_deployed, mini_apps_created }
-        const github = data.github_commits || data.github_contributions || 0;
-        const contracts = data.base_contracts_deployed || data.contracts_deployed || 0;
-        const miniApps = data.mini_apps_created || data.mini_apps || 0;
+        // Extract relevant data points
+        const dataMap = {};
+        dataPoints.data_points.forEach(dp => {
+            dataMap[dp.slug] = dp.value || 0;
+        });
+
+        const github = dataMap.github_commit_count || dataMap.github_contributions || 0;
+        const contracts = dataMap.base_contract_deployed || dataMap.contracts_deployed || 0;
+        const miniApps = dataMap.mini_app_created || dataMap.mini_apps_created || 0;
 
         // Calculate score
         const score = Math.floor((github * 0.4) + (contracts * 0.4) + (miniApps * 0.2));
