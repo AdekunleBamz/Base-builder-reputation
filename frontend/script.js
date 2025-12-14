@@ -50,7 +50,7 @@ async function fetchAndCalculate() {
         // Fetch from Talent Protocol API
         const response = await fetch(`https://api.talentprotocol.com/api/v1/builders/${profileId}`, {
             headers: {
-                'Authorization': `Bearer 38ba6482e80cdc1b6b37228e02208d132c3f6e799e433d9fc12f70c68f36`
+                'Authorization': `Bearer ${TALENT_API_KEY}`
             }
         });
         if (!response.ok) throw new Error('Failed to fetch data');
