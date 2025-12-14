@@ -79,16 +79,8 @@ contract BuilderPassport is ERC721, Ownable {
         return passportData[tokenId].score;
     }
 
-    // Override transfers to make it SBT (non-transferable)
+    // Override transfer to make it SBT (non-transferable)
     function transferFrom(address from, address to, uint256 tokenId) public override {
-        revert("Passports are soulbound and cannot be transferred");
-    }
-
-    function safeTransferFrom(address from, address to, uint256 tokenId) public override {
-        revert("Passports are soulbound and cannot be transferred");
-    }
-
-    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data) public override {
         revert("Passports are soulbound and cannot be transferred");
     }
 
