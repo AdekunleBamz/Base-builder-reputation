@@ -95,9 +95,12 @@ async function fetchAndCalculate() {
         const profileId = profile.uuid;
 
         // Use Builder Score from Talent Protocol
+        if (profile.calculating_score) {
+            throw new Error('Builder Score is still being calculated. Please try again later.');
+        }
         const builderScoreObj = profile.scores.find(s => s.scorer_slug === 'builder_score');
         if (!builderScoreObj) {
-            throw new Error('Builder Score not found for this profile.');
+            throw new Error('Builder Score not available for this profile. Ensure your Talent profile is complete.');
         }
         const talentScore = builderScoreObj.points;
 
